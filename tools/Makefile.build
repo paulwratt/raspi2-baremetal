@@ -1,0 +1,53 @@
+###########################
+# 
+#
+src				:= $(patsubst %/,%,$(obj))
+obj-y			:=
+
+
+###########################
+# 
+#
+include			$(src)/Makefile
+
+
+###########################
+# 
+#
+build-dir		:= $(filter %/,$(obj-y))
+build-dir		:= $(patsubst %,$(src)/%,$(build-dir))
+build-file		:= $(filter %.o,%.o,$(obj-y))
+build-file		:= $(patsubst %,$(src)/%,$(build-file))
+build-obj		:= $(filter %/,$(obj-y))
+build-obj		:= $(patsubst %/,$(src)/%/.build.in.o,$(build-obj))
+
+
+###########################
+# 
+#
+all: $(src)/.build.in.o FORCE
+
+
+$(src)/.build.in.o : $(build-obj) $(build-file)
+	$(LD) -r -o $@ $^
+
+
+$(build-obj) : FORCE
+	@make -s -f $(BUILD) $(flag) flag=$(flag) obj=$(dir $@)
+
+
+.SUFFIXES: .c .s .o
+.c.o:
+	@echo cc $@
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+.s.o:
+	@echo as $@
+	$(AS) $(AFLAGS) $< -o $@
+
+clean: $(build-obj)
+	@rm -f $(src)/.build.in.o $(build-file)
+
+FORCE:
+.PHONY: all clean FORCE
+
