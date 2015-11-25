@@ -49,6 +49,12 @@ export TARGET TARGET_ELF TARGET_LST TARGET_HEX
 export BUILD
 
 
+define FUNC_BUILD
+	@make -s -f $(BUILD) $2 flag=$2 obj=$(dir $1)
+
+endef
+
+
 ###########################
 # Make Rule
 #
@@ -65,6 +71,7 @@ $(TARGET) : $(TARGET_ELF) $(TARGET_LST) $(TARGET_HEX)
 
 $(TARGET_ELF) : $(OBJS)
 	@echo "  create $@"
+	@mkdir -p boot
 	@$(LD) $^ -T arch/board/raspi2/memorymap.ld -o $@
 
 $(TARGET_LST) : $(TARGET_ELF)
@@ -82,11 +89,11 @@ $(TARGET_HEX) : $(TARGET_ELF)
 #
 clean:
 	@echo clean
-	@make -s -f $(BUILD) clean flag=clean obj=arch/
-	@make -s -f $(BUILD) clean flag=clean obj=drivers/
-	@make -s -f $(BUILD) clean flag=clean obj=kernel/
+	$(foreach obj,$(OBJS),$(call FUNC_BUILD,$(obj),clean))
 	$(RM) $(TARGET) $(TARGET_ELF) $(TARGET_LST) $(TARGET_HEX)
 
 FORCE:
 .PHONY: all clean FORCE
+
+
 
