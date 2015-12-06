@@ -1,2 +1,2 @@
-obj-y += dummy.o
-#obj-y += memorymap.ld
+obj-y += device.o
+extra-y += memorymap.ld

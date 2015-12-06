@@ -3,13 +3,17 @@
 #
 src				:= $(patsubst %/,%,$(obj))
 obj-y			:=
-
+extra-y			:=
 
 ###########################
 # 
 #
 include			$(src)/Makefile
 
+ifneq ("x$(extra-y)","x")
+	EXTRA := $(extra-y)
+	export EXTRA
+endif
 
 ###########################
 # 
@@ -25,7 +29,7 @@ build-obj		:= $(patsubst %/,$(src)/%/.build.in.o,$(build-obj))
 ###########################
 # 
 #
-all: $(src)/.build.in.o FORCE
+all: $(src)/.build.in.o FORCE ;
 
 
 $(src)/.build.in.o : $(build-obj) $(build-file)
@@ -33,7 +37,7 @@ $(src)/.build.in.o : $(build-obj) $(build-file)
 
 
 $(build-obj) : FORCE
-	@make -s -f $(BUILD) $(flag) flag=$(flag) obj=$(dir $@)
+	@$(MAKE) -s -f $(BUILD) $(flag) flag=$(flag) obj=$(dir $@)
 
 
 .SUFFIXES: .c .s .o
