@@ -13,7 +13,7 @@ typedef char *va_list;
 
 
 int printk(const char *fmt, ... );
-
+int vsnprintk(char *buffer, int count, const char *format, va_list va);
 
 
 

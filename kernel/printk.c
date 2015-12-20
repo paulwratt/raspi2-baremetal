@@ -2,28 +2,17 @@
 #include	<type.h>
 
 
-static int __log_pos = 0;
-static int __log_size = 0x1000;
-static char __log_buf[0x1000];
+#define		__LOG_SIZE			(0x1000)
+#define		__LOG_SIZE_MASK		(__LOG_SIZE - 1)
+
+//static int __log_start = 0;
+//static int __log_end = 0;
+static char __log_buf[__LOG_SIZE];
+
+//static char __log_temp[64];
+//static int __log_temp_pos;
 
 
-int vprintk(const char *fmt, va_list va)
-{
-	int i;
-
-	if (fmt == NULL)
-		return 0;
-
-	for (i = 0;fmt[i];i++) {
-		char ch = fmt[i];
-
-		__log_buf[__log_pos++] = ch;
-		if (__log_pos >= __log_size)
-			__log_pos = 0;
-	}
-
-	return 0;
-}
 
 int printk(const char *fmt, ... )
 {
@@ -31,8 +20,12 @@ int printk(const char *fmt, ... )
 	va_list va;
 
 	va_start(va, fmt);
-	ret = vprintk(fmt, va);
+	ret = vsnprintk(__log_buf, __LOG_SIZE, fmt, va);
 	va_end(va);
+
+	// TODO :
+	uart_write(__log_buf, ret);
+//	uart_write("a0b1c2d3e4\n", 8);
 
 	return ret;
 }

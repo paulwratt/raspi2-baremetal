@@ -1,1 +1,1 @@
-obj-y += startup.o
+obj-y += startup.o register.o irq.o

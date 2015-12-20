@@ -2,6 +2,7 @@
 # 
 #
 src				:= $(patsubst %/,%,$(obj))
+src				:= $(patsubst $(OBJ_DIR)/%,%,$(src))
 obj-y			:=
 extra-y			:=
 
@@ -20,37 +21,42 @@ endif
 #
 build-dir		:= $(filter %/,$(obj-y))
 build-dir		:= $(patsubst %,$(src)/%,$(build-dir))
-build-file		:= $(filter %.o,%.o,$(obj-y))
-build-file		:= $(patsubst %,$(src)/%,$(build-file))
+build-file		:= $(filter %.o,$(obj-y))
+build-file		:= $(patsubst %,$(OBJ_DIR)/$(src)/%,$(build-file))
 build-obj		:= $(filter %/,$(obj-y))
-build-obj		:= $(patsubst %/,$(src)/%/.build.in.o,$(build-obj))
-
+build-obj		:= $(patsubst %/,$(OBJ_DIR)/$(src)/%/.build.in.o,$(build-obj))
+build-deps		:= $(build-file:%.o=%.d)
 
 ###########################
 # 
 #
-all: $(src)/.build.in.o FORCE ;
+-include $(build-deps)
 
+###########################
+# 
+#
+all: $(OBJ_DIR)/$(src)/.build.in.o FORCE
 
-$(src)/.build.in.o : $(build-obj) $(build-file)
-	$(LD) -r -o $@ $^
+$(OBJ_DIR)/$(src)/.build.in.o : $(build-obj) $(build-file)
+	@$(LD) -r -o $@ $^
 
 
 $(build-obj) : FORCE
-	@$(MAKE) -s -f $(BUILD) $(flag) flag=$(flag) obj=$(dir $@)
+	@$(MAKE) -s -f $(BUILD) $(flag) flag=$(flag) obj=$(patsubst .obj/%,%,$(dir $@))
 
 
-.SUFFIXES: .c .s .o
-.c.o:
+$(OBJ_DIR)/%.o : %.c
 	@echo cc $@
-	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+	@$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c -MMD -MP -MF $(@:%.o=%.d) $<
 
-.s.o:
+$(OBJ_DIR)/%.o : %.s
 	@echo as $@
-	$(AS) $(AFLAGS) $< -o $@
+	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+	@$(AS) $(AFLAGS) -o $@ $<
 
 clean: $(build-obj)
-	@rm -f $(src)/.build.in.o $(build-file)
+	@$(RM) $(OBJ_DIR)/$(src)/.build.in.o $(build-file) $(build-deps)
 
 FORCE:
 .PHONY: all clean FORCE
