@@ -1,1 +1,1 @@
-obj-y += pl011.o
+obj-y += mini_uart.o

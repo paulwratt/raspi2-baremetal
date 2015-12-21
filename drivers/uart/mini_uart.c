@@ -1,9 +1,10 @@
+#include "mini_uart.h"
+
 #include	<stdio.h>
 #include	<device.h>
 #include	<register.h>
 #include	<type.h>
 
-#include	"pl011.h"
 
 
 #define GPFSEL1		0x3F200004
