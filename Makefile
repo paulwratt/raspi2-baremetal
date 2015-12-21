@@ -1,6 +1,6 @@
 
 
-include $(CURDIR)/tools/Makefile.common
+include $(CURDIR)/tools/Makefile.common.mk
 
 
 

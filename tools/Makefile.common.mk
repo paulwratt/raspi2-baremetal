@@ -59,7 +59,7 @@ OBJS			+= $(OBJ_DIR)/kernel/.build.in.o
 OBJS			+= $(OBJ_DIR)/drivers/.build.in.o
 OBJS			+= $(OBJ_DIR)/lib/.build.in.o
 
-BUILD			:= $(CURDIR)/tools/Makefile.build
+BUILD			:= $(CURDIR)/tools/Makefile.build.mk
 
 export TARGET TARGET_ELF TARGET_LST TARGET_HEX
 export BUILD
